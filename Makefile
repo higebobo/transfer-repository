@@ -21,9 +21,15 @@ run-github-jpec: ## Get github jpec-website
 	@python main.py github jpec
 
 run-github-toyoake: ## Get github toyoakekaki
-	@python main.py github toyoakekaki
+	@python main.py github toyoake
 
-clear: ## Clear working directory
+run-gitlab: ## Get gitlab
+	@python main.py gitlab
+
+run-bitbucket: ## Get bitbucket
+	@python main.py bitbucket
+
+clean: ## Clear working directory
 	@rm -fr work/*
 
 help: ## Print this help

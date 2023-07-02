@@ -20,20 +20,55 @@ def github(suffix):
         'Authorization': f'token {token}',
         'X-GitHub-Api-Version': '2022-11-28'
     }
+
     response = requests.get(endpoint, headers=headers)
+
     if response.status_code != 200:
         return
 
     for x in response.json():
         name = x['name']
-        full_name = x['full_name']
         url = x['ssh_url']
         visibility = x['visibility']
-        print(f'git clone --bare {url} {WORK_DIR}/{name}')
-        print(f'cd {WORK_DIR}/{name}')
-        print(f'gh repo create {github_org}/{name} --{visibility}')
-        print(f'git push --mirror git@github.com:{github_org}/{name}')
-        print(f'cd {CUR_DIR}')
+        output(url, name, visibility, github_org)
+        # print(f'git clone --bare {url} {WORK_DIR}/{name}')
+        # print(f'cd {WORK_DIR}/{name}')
+        # print(f'gh repo create {github_org}/{name} --{visibility}')
+        # print(f'git push --mirror git@github.com:{github_org}/{name}')
+        # print(f'cd {CUR_DIR}')
+
+
+def gitlab(page=100):
+    github_org = 'toyorepo-gitlab'
+    token = os.getenv('GITLAB_TOKEN')
+    headers = {'PRIVATE-TOKEN': token}
+    group_id = os.getenv('GITLAB_GROUP_ID')
+    endpoint = 'https://gitlab.com/api/v4/'
+    endpoint = f'https://gitlab.com/api/v4/groups/{group_id}/projects?per_page={page}'
+
+    response = requests.get(endpoint, headers=headers)
+
+    if response.status_code != 200:
+        return
+
+    for x in response.json():
+        name = x['name']
+        url = x['ssh_url_to_repo']
+        visibility = x['visibility']
+        output(url, name, visibility, github_org)
+
+
+def bitbucket():
+    github_org = 'toyorepo-bitbucket'
+    print(github_org)
+
+
+def output(url, name, visibility, github_org):
+    print(f'git clone --bare {url} {WORK_DIR}/{name}')
+    print(f'cd {WORK_DIR}/{name}')
+    print(f'gh repo create {github_org}/{name} --{visibility}')
+    print(f'git push --mirror git@github.com:{github_org}/{name}')
+    print(f'cd {CUR_DIR}')
 
 
 def usage():
@@ -61,8 +96,8 @@ if __name__ == "__main__":
         else:
             usage()
     elif sys.argv[1] == 'gitlab':
-        pass
+        gitlab()
     elif sys.argv[1] == 'bitbucket':
-        pass
+        bitbucket()
     else:
         usage()
